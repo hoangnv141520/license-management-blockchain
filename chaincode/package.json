@@ -1,0 +1,28 @@
+{
+  "name": "lisencecc-node",
+  "version": "1.0.0",
+  "description": "Lisence Smart Contract in Node.js",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "fabric-chaincode-node start",
+    "build": "tsc",
+    "build:watch": "tsc -w",
+    "test": "mocha -r ts-node/register src/**/*.spec.ts"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "fabric-contract-api": "^2.5.0",
+    "fabric-shim": "^2.5.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.0",
+    "@types/mocha": "^9.1.0",
+    "@types/node": "^18.0.0",
+    "chai": "^4.3.0",
+    "mocha": "^10.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^4.9.0"
+  }
+}

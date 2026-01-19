@@ -7,7 +7,7 @@ A web application for managing business licenses with Hyperledger Fabric blockch
 - **Frontend**: React + TypeScript + Vite + TailwindCSS
 - **Backend**: Node.js + Express + TypeScript + Sequelize
 - **Database**: MySQL 8.0
-- **Blockchain**: Hyperledger Fabric (optional)
+- **Blockchain**: Hyperledger Fabric
 - **Container**: Docker Compose
 
 ## Quick Start

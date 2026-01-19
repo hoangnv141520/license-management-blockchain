@@ -2,86 +2,88 @@ services:
   mysql:
     image: mysql:8.0
     container_name: fabric-mysql
-    restart: unless-stopped
+    restart: always
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
-      - "${MYSQL_PORT_HOST}:3306"
+      - "127.0.0.1:${MYSQL_PORT_HOST}:3306"  # Only bind to localhost for security
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       timeout: 20s
       retries: 10
+    networks:
+      - app_network
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: fabric-phpmyadmin
-    restart: unless-stopped
+    restart: always
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
       PMA_USER: ${MYSQL_USER}
       PMA_PASSWORD: ${MYSQL_PASSWORD}
     ports:
-      - "${PHPMYADMIN_PORT}:80"
+      - "127.0.0.1:${PHPMYADMIN_PORT}:80"  # Only bind to localhost for security
     depends_on:
       - mysql
+    networks:
+      - app_network
 
   backend:
     build:
       context: ./backend
-      target: dev
+      target: production
+      args:
+        - NODE_ENV=production
     container_name: fabric-backend
-    restart: unless-stopped
+    restart: always
     env_file:
       - ./backend/.env
     environment:
+      - NODE_ENV=production
       - SERVER_PORT=8080
       - DB_HOST=mysql
       - DB_PORT=3306
-      - DB_USER=fabric_user
-      - DB_PASSWORD=fabric_password
-      - DB_NAME=fabric_db
-      - ALLOW_ORIGIN=http://localhost:3000
     ports:
-      - "${SERVER_PORT}:${SERVER_PORT}"
+      - "127.0.0.1:${SERVER_PORT}:${SERVER_PORT}"  # Only bind to localhost, use Nginx reverse proxy
     depends_on:
       mysql:
         condition: service_healthy
     volumes:
-      - ./backend:/app
-      - /app/node_modules
-    command: npm run dev
+      - ./backend/uploads:/app/uploads
+      - ./backend/wallet:/app/wallet
+      - ./backend/src/config:/app/src/config
     networks:
-      - default
+      - app_network
       - fabric_test
 
-
   frontend:
-    image: node:20-alpine
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
     container_name: fabric-frontend
-    restart: unless-stopped
-    working_dir: /app
+    restart: always
     environment:
       - VITE_ERM_GO_API=${VITE_ERM_GO_API}
     ports:
-      - "${FRONTEND_PORT}:5173"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+      - "127.0.0.1:${FRONTEND_PORT}:80"  # Nginx serves on port 80 inside container
     depends_on:
       - backend
+    networks:
+      - app_network
 
 volumes:
   mysql_data:
+    driver: local
 
 networks:
-  default:
-    external: false
+  app_network:
+    driver: bridge
   fabric_test:
     external: true

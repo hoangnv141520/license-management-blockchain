@@ -3,11 +3,15 @@ import doanhNghiepRoutes from './doanhNghiepRoutes';
 import hoSoRoutes from './hoSoRoutes';
 import giayPhepRoutes from './giayPhepRoutes';
 import authRoutes from './authRoutes';
+import blockchainRoutes from './blockchainRoutes';
 import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
 
 router.use('/auth', authRoutes);
+
+// Blockchain routes (public for testing, can add auth later)
+router.use('/blockchain', blockchainRoutes);
 
 // Protected routes
 router.use('/doanh-nghiep', authenticateToken, doanhNghiepRoutes);

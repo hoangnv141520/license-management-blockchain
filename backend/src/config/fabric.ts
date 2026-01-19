@@ -87,7 +87,7 @@ export class FabricClient {
       await this.gateway.connect(connectionProfile, {
         wallet,
         identity: this.config.identity,
-        discovery: { enabled: true, asLocalhost: true },
+        discovery: { enabled: true, asLocalhost: false },
       });
 
       this.network = await this.gateway.getNetwork(this.config.channelName);

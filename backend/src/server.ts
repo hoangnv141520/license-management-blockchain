@@ -30,7 +30,16 @@ app.get('/', (req, res) => {
 // Start Server
 const startServer = async () => {
   await connectDB();
-  
+
+  // Initialize blockchain service
+  try {
+    const { blockchainService } = await import('./services/blockchainService');
+    await blockchainService.init();
+    console.log('✅ Blockchain service initialized');
+  } catch (error) {
+    console.log('⚠️ Blockchain service not available:', error);
+  }
+
   app.listen(port, () => {
     console.log(`🚀 Server running on http://localhost:${port}`);
   });
